@@ -39,3 +39,13 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}:latest
 
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+    steps:
+      - name: Pull fresh images and cycle application stack
+        run: |
+          cd ~/Desktop/project2/Expense_Tracker
+          docker compose down
+          docker compose pull
+          docker compose up -d
