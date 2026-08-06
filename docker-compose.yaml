@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: expense-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/yanal-55/project2:latest
+    container_name: expense-backend
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONPATH: "/app"
+      VAULT_ADDR: "http://vault:8200"
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+    depends_on:
+      - db
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+networks:
+  shared-network:
+
